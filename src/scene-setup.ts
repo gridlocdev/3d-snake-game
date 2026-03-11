@@ -1,0 +1,93 @@
+import {
+  Scene,
+  HemisphericLight,
+  PointLight,
+  MeshBuilder,
+  StandardMaterial,
+  Color3,
+  Color4,
+  Vector3,
+  ParticleSystem,
+  Texture,
+  ArcRotateCamera,
+} from "@babylonjs/core";
+import type { Engine, Mesh } from "@babylonjs/core";
+import { SPHERE_RADIUS, STARFIELD_RADIUS } from "./constants.ts";
+
+export function createScene(engine: Engine, _canvas: HTMLCanvasElement): Scene {
+  const scene = new Scene(engine);
+  scene.clearColor = new Color4(0.01, 0.01, 0.03, 1);
+
+  // Camera (we'll control it manually)
+  const camera = new ArcRotateCamera(
+    "cam",
+    0,
+    0,
+    20,
+    Vector3.Zero(),
+    scene,
+  );
+  camera.minZ = 0.1;
+  // Don't attach controls — we control camera programmatically
+
+  // Lighting
+  const hemiLight = new HemisphericLight("hemi", new Vector3(0, 1, 0), scene);
+  hemiLight.intensity = 0.5;
+  hemiLight.diffuse = new Color3(0.8, 0.85, 1);
+
+  const pointLight = new PointLight("point", new Vector3(10, 10, 10), scene);
+  pointLight.intensity = 0.8;
+
+  return scene;
+}
+
+export function createWorldSphere(scene: Scene): Mesh {
+  const sphere = MeshBuilder.CreateSphere(
+    "world",
+    { diameter: SPHERE_RADIUS * 2, segments: 32 },
+    scene,
+  );
+  const mat = new StandardMaterial("worldMat", scene);
+  mat.diffuseColor = new Color3(0.1, 0.15, 0.25);
+  mat.alpha = 0.6;
+  mat.specularColor = new Color3(0.2, 0.3, 0.5);
+  mat.backFaceCulling = true;
+  sphere.material = mat;
+
+  // Wireframe overlay
+  const wire = MeshBuilder.CreateSphere(
+    "wireframe",
+    { diameter: SPHERE_RADIUS * 2.005, segments: 16 },
+    scene,
+  );
+  const wireMat = new StandardMaterial("wireMat", scene);
+  wireMat.wireframe = true;
+  wireMat.emissiveColor = new Color3(0.15, 0.25, 0.4);
+  wireMat.disableLighting = true;
+  wireMat.alpha = 0.3;
+  wire.material = wireMat;
+
+  return sphere;
+}
+
+export function createStarfield(scene: Scene): void {
+  // Use a particle system for starfield
+  const ps = new ParticleSystem("stars", STARFIELD_RADIUS * 30, scene);
+  // Use a small white circle as particle texture
+  const starTex = new Texture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAADlJREFUKFNjZEAC/xkY/jMwMDAyIAsgCzAxoEhgKGBkQFbAwIihAFkBIyOqAgZGDAUMjOgKkO0HABqiCA1ZJp3jAAAAAElFTkSuQmCC", scene);
+  ps.particleTexture = starTex;
+  ps.emitter = Vector3.Zero();
+  ps.createSphereEmitter(STARFIELD_RADIUS);
+  ps.minSize = 0.05;
+  ps.maxSize = 0.15;
+  ps.minLifeTime = 999999;
+  ps.maxLifeTime = 999999;
+  ps.emitRate = 0;
+  ps.manualEmitCount = 2000;
+  ps.color1 = new Color4(1, 1, 1, 1);
+  ps.color2 = new Color4(0.8, 0.9, 1, 0.8);
+  ps.minEmitPower = 0;
+  ps.maxEmitPower = 0;
+  ps.updateSpeed = 0;
+  ps.start();
+}
