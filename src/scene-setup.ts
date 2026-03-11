@@ -18,7 +18,6 @@ export function createScene(engine: Engine, _canvas: HTMLCanvasElement): Scene {
   const scene = new Scene(engine);
   scene.clearColor = new Color4(0.01, 0.01, 0.03, 1);
 
-  // Camera (we'll control it manually)
   const camera = new ArcRotateCamera(
     "cam",
     0,
@@ -28,15 +27,15 @@ export function createScene(engine: Engine, _canvas: HTMLCanvasElement): Scene {
     scene,
   );
   camera.minZ = 0.1;
-  // Don't attach controls — we control camera programmatically
 
-  // Lighting
+  // Lighting: place light inside the sphere so the interior is lit
   const hemiLight = new HemisphericLight("hemi", new Vector3(0, 1, 0), scene);
-  hemiLight.intensity = 0.5;
+  hemiLight.intensity = 0.6;
   hemiLight.diffuse = new Color3(0.8, 0.85, 1);
 
-  const pointLight = new PointLight("point", new Vector3(10, 10, 10), scene);
-  pointLight.intensity = 0.8;
+  const pointLight = new PointLight("point", new Vector3(0, 0, 0), scene);
+  pointLight.intensity = 1.0;
+  pointLight.diffuse = new Color3(0.9, 0.9, 1);
 
   return scene;
 }
@@ -44,20 +43,20 @@ export function createScene(engine: Engine, _canvas: HTMLCanvasElement): Scene {
 export function createWorldSphere(scene: Scene): Mesh {
   const sphere = MeshBuilder.CreateSphere(
     "world",
-    { diameter: SPHERE_RADIUS * 2, segments: 32 },
+    { diameter: SPHERE_RADIUS * 2, segments: 32, sideOrientation: 1 },
     scene,
   );
   const mat = new StandardMaterial("worldMat", scene);
   mat.diffuseColor = new Color3(0.1, 0.15, 0.25);
-  mat.alpha = 0.6;
+  mat.alpha = 0.4;
   mat.specularColor = new Color3(0.2, 0.3, 0.5);
   mat.backFaceCulling = true;
   sphere.material = mat;
 
-  // Wireframe overlay
+  // Wireframe overlay (also flipped for interior view)
   const wire = MeshBuilder.CreateSphere(
     "wireframe",
-    { diameter: SPHERE_RADIUS * 2.005, segments: 16 },
+    { diameter: SPHERE_RADIUS * 1.995, segments: 16, sideOrientation: 1 },
     scene,
   );
   const wireMat = new StandardMaterial("wireMat", scene);
@@ -71,9 +70,7 @@ export function createWorldSphere(scene: Scene): Mesh {
 }
 
 export function createStarfield(scene: Scene): void {
-  // Use a particle system for starfield
   const ps = new ParticleSystem("stars", STARFIELD_RADIUS * 30, scene);
-  // Use a small white circle as particle texture
   const starTex = new Texture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAADlJREFUKFNjZEAC/xkY/jMwMDAyIAsgCzAxoEhgKGBkQFbAwIihAFkBIyOqAgZGDAUMjOgKkO0HABqiCA1ZJp3jAAAAAElFTkSuQmCC", scene);
   ps.particleTexture = starTex;
   ps.emitter = Vector3.Zero();

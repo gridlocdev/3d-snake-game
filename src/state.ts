@@ -1,16 +1,16 @@
-import { Quaternion, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import {
-  SPHERE_RADIUS,
   SNAKE_SPEED,
   INITIAL_SEGMENTS,
   SEGMENT_SPACING,
 } from "./constants.ts";
 import type { GameState, SnakeSegment } from "./types.ts";
-import { advanceOnSphere } from "./sphere-math.ts";
 
 export function createInitialState(): GameState {
-  const headPos = new Vector3(0, SPHERE_RADIUS, 0);
-  const headingQuat = Quaternion.Identity();
+  // Start near the center, heading in +Z direction
+  const headPos = new Vector3(0, 0, 0);
+  const forward = new Vector3(0, 0, 1).normalize();
+  const up = new Vector3(0, 1, 0);
 
   const segments: SnakeSegment[] = [
     { position: headPos.clone(), growthFactor: 1 },
@@ -18,11 +18,8 @@ export function createInitialState(): GameState {
 
   // Place initial body segments behind the head
   const pathHistory: Vector3[] = [headPos.clone()];
-  // Build a backwards path for initial segments
-  const backQuat = Quaternion.RotationAxis(Vector3.Right(), Math.PI);
-  let pos = headPos.clone();
   for (let i = 1; i < INITIAL_SEGMENTS; i++) {
-    pos = advanceOnSphere(pos, backQuat, SEGMENT_SPACING);
+    const pos = headPos.subtract(forward.scale(i * SEGMENT_SPACING));
     segments.push({ position: pos.clone(), growthFactor: 1 });
     pathHistory.push(pos.clone());
   }
@@ -31,7 +28,8 @@ export function createInitialState(): GameState {
     phase: "start-menu",
     snake: {
       segments,
-      headingQuat,
+      forward,
+      up,
       speed: SNAKE_SPEED,
       growQueue: 0,
       pathHistory,

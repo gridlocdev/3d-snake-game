@@ -7,14 +7,12 @@ import {
 import type { Scene, Mesh, DynamicTexture } from "@babylonjs/core";
 import { HEAD_RADIUS, BODY_RADIUS } from "./constants.ts";
 import type { GameState } from "./types.ts";
-import { getForward } from "./sphere-math.ts";
 
 let headMesh: Mesh;
 const bodyMeshes: Mesh[] = [];
 let bodyMat: StandardMaterial;
 
 export function createSnakeMeshes(scene: Scene, faceTex: DynamicTexture): void {
-  // Head
   headMesh = MeshBuilder.CreateSphere(
     "snakeHead",
     { diameter: HEAD_RADIUS * 2, segments: 12 },
@@ -26,7 +24,6 @@ export function createSnakeMeshes(scene: Scene, faceTex: DynamicTexture): void {
   headMat.diffuseTexture = faceTex;
   headMesh.material = headMat;
 
-  // Body material (shared)
   bodyMat = new StandardMaterial("bodyMat", scene);
   bodyMat.diffuseColor = new Color3(0.15, 0.65, 0.2);
   bodyMat.emissiveColor = new Color3(0.03, 0.12, 0.03);
@@ -43,7 +40,6 @@ function ensureBodyMeshCount(count: number, scene: Scene): void {
     mesh.material = bodyMat;
     bodyMeshes.push(mesh);
   }
-  // Hide extras
   for (let i = count; i < bodyMeshes.length; i++) {
     bodyMeshes[i].setEnabled(false);
   }
@@ -54,14 +50,7 @@ export function syncSnakeMeshes(state: GameState, scene: Scene): void {
 
   // Head position + orientation
   headMesh.position = segments[0].position.clone();
-  // Orient head: look along forward direction
-  const normal = segments[0].position.normalize();
-  const forward = getForward(segments[0].position, state.snake.headingQuat);
-  headMesh.position = segments[0].position.add(
-    normal.scale(HEAD_RADIUS * 0.3),
-  );
-
-  // Point head mesh forward
+  const forward = state.snake.forward;
   const lookTarget = headMesh.position.add(forward);
   headMesh.lookAt(lookTarget);
 
@@ -71,16 +60,12 @@ export function syncSnakeMeshes(state: GameState, scene: Scene): void {
 
   for (let i = 0; i < bodyCount; i++) {
     const seg = segments[i + 1];
-    const segNormal = seg.position.normalize();
-    bodyMeshes[i].position = seg.position.add(
-      segNormal.scale(BODY_RADIUS * 0.3),
-    );
+    bodyMeshes[i].position = seg.position.clone();
     bodyMeshes[i].setEnabled(true);
 
-    // Gradient: darker toward tail
-    // Scale slightly based on growth
     const scale = BODY_RADIUS * 2 * (0.9 + seg.growthFactor * 0.1);
-    bodyMeshes[i].scaling = new Vector3(scale / (BODY_RADIUS * 2), scale / (BODY_RADIUS * 2), scale / (BODY_RADIUS * 2));
+    const s = scale / (BODY_RADIUS * 2);
+    bodyMeshes[i].scaling = new Vector3(s, s, s);
   }
 }
 

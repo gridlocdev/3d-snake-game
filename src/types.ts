@@ -1,4 +1,4 @@
-import type { Quaternion, Vector3 } from "@babylonjs/core";
+import type { Vector3 } from "@babylonjs/core";
 
 export type GamePhase =
   | "start-menu"
@@ -15,7 +15,8 @@ export interface SnakeSegment {
 
 export interface SnakeState {
   segments: SnakeSegment[];
-  headingQuat: Quaternion;
+  forward: Vector3;
+  up: Vector3;
   speed: number;
   growQueue: number;
   pathHistory: Vector3[];
@@ -36,7 +37,8 @@ export interface GameState {
 }
 
 export interface InputState {
-  steer: number;
+  steerX: number;
+  steerY: number;
   confirm: boolean;
   pause: boolean;
   menuUp: boolean;

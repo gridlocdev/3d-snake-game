@@ -8,7 +8,6 @@ import {
   ZOOM_IN_START_DISTANCE,
 } from "./constants.ts";
 import type { GameState } from "./types.ts";
-import { getForward } from "./sphere-math.ts";
 
 let zoomElapsed = 0;
 
@@ -22,28 +21,29 @@ export function updateCamera(
   dt: number,
 ): void {
   const head = state.snake.segments[0];
-  const normal = head.position.normalize();
-  const forward = getForward(head.position, state.snake.headingQuat);
+  const forward = state.snake.forward;
+  const up = state.snake.up;
 
+  // Camera sits behind and above the snake
   const targetPos = head.position
-    .add(normal.scale(CAMERA_HEIGHT))
-    .subtract(forward.scale(CAMERA_DISTANCE));
+    .subtract(forward.scale(CAMERA_DISTANCE))
+    .add(up.scale(CAMERA_HEIGHT));
 
-  const lookTarget = head.position.clone();
+  const lookTarget = head.position.add(forward.scale(1));
 
   if (state.phase === "zoom-in") {
     zoomElapsed += dt;
     const t = Math.min(zoomElapsed / ZOOM_IN_DURATION, 1);
-    // Ease-out cubic
     const eased = 1 - Math.pow(1 - t, 3);
 
     const farPos = head.position
-      .add(normal.scale(CAMERA_HEIGHT * 2))
-      .subtract(forward.scale(ZOOM_IN_START_DISTANCE));
+      .subtract(forward.scale(ZOOM_IN_START_DISTANCE))
+      .add(up.scale(CAMERA_HEIGHT * 2));
 
     const pos = Vector3.Lerp(farPos, targetPos, eased);
     camera.position = pos;
     camera.setTarget(lookTarget);
+    camera.upVector = up.clone();
 
     if (t >= 1) {
       state.phase = "playing";
@@ -58,4 +58,9 @@ export function updateCamera(
     Math.min(1, CAMERA_LERP_SPEED * dt),
   );
   camera.setTarget(lookTarget);
+  camera.upVector = Vector3.Lerp(
+    camera.upVector,
+    up,
+    Math.min(1, CAMERA_LERP_SPEED * dt),
+  );
 }

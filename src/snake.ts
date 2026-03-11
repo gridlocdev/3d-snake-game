@@ -1,37 +1,56 @@
-import { Vector3 } from "@babylonjs/core";
+import { Vector3, Quaternion } from "@babylonjs/core";
 import {
   SEGMENT_SPACING,
   COLLISION_SKIP,
   COLLISION_THRESHOLD,
   TURN_RATE,
   PATH_HISTORY_MAX,
+  SPHERE_RADIUS,
 } from "./constants.ts";
 import type { GameState, InputState } from "./types.ts";
-import {
-  advanceOnSphere,
-  steerHeading,
-  geodesicDistance,
-} from "./sphere-math.ts";
 
 export function updateSnake(state: GameState, input: InputState, dt: number): void {
   const snake = state.snake;
 
-  // Steer
-  if (Math.abs(input.steer) > 0.01) {
-    snake.headingQuat = steerHeading(
-      snake.headingQuat,
-      snake.segments[0].position,
-      TURN_RATE * input.steer * dt,
-    );
+  // Compute the right vector from forward and up
+  const right = Vector3.Cross(snake.forward, snake.up).normalize();
+
+  // Pitch: rotate forward and up around right axis (W = pitch up, S = pitch down)
+  if (Math.abs(input.steerY) > 0.01) {
+    const pitchAngle = -input.steerY * TURN_RATE * dt;
+    const pitchQuat = Quaternion.RotationAxis(right, pitchAngle);
+    snake.forward.rotateByQuaternionAroundPointToRef(pitchQuat, Vector3.Zero(), snake.forward);
+    snake.up.rotateByQuaternionAroundPointToRef(pitchQuat, Vector3.Zero(), snake.up);
+    snake.forward.normalize();
+    snake.up.normalize();
   }
 
-  // Advance head
+  // Yaw: rotate forward and up around up axis (A = left, D = right)
+  if (Math.abs(input.steerX) > 0.01) {
+    const yawAngle = input.steerX * TURN_RATE * dt;
+    const yawQuat = Quaternion.RotationAxis(snake.up, yawAngle);
+    snake.forward.rotateByQuaternionAroundPointToRef(yawQuat, Vector3.Zero(), snake.forward);
+    snake.forward.normalize();
+    // Up stays the same for yaw (rotation is around up axis)
+  }
+
+  // Re-orthogonalize to prevent drift
+  const newRight = Vector3.Cross(snake.forward, snake.up).normalize();
+  snake.up = Vector3.Cross(newRight, snake.forward).normalize();
+
+  // Advance head in forward direction (straight line)
   const moveDistance = snake.speed * dt;
-  const newHeadPos = advanceOnSphere(
-    snake.segments[0].position,
-    snake.headingQuat,
-    moveDistance,
+  const newHeadPos = snake.segments[0].position.add(
+    snake.forward.scale(moveDistance),
   );
+
+  // Boundary: clamp to inside sphere
+  if (newHeadPos.length() >= SPHERE_RADIUS) {
+    state.highScore = Math.max(state.highScore, state.score);
+    state.phase = "game-over";
+    return;
+  }
+
   snake.segments[0].position = newHeadPos;
 
   // Push to path history
@@ -80,7 +99,7 @@ export function updateSnake(state: GameState, input: InputState, dt: number): vo
 export function checkSelfCollision(state: GameState): boolean {
   const head = state.snake.segments[0].position;
   for (let i = COLLISION_SKIP; i < state.snake.segments.length; i++) {
-    const dist = geodesicDistance(head, state.snake.segments[i].position);
+    const dist = Vector3.Distance(head, state.snake.segments[i].position);
     if (dist < COLLISION_THRESHOLD) {
       return true;
     }

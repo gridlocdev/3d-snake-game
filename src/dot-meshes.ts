@@ -7,7 +7,6 @@ import {
 import type { Scene, Mesh } from "@babylonjs/core";
 import {
   DOT_RADIUS,
-  DOT_HEIGHT_ABOVE_SURFACE,
   DOT_BOB_SPEED,
   DOT_BOB_HEIGHT,
 } from "./constants.ts";
@@ -27,7 +26,6 @@ export function createDotMaterial(scene: Scene): void {
 export function syncDotMeshes(state: GameState, scene: Scene, dt?: number): void {
   if (dt !== undefined) elapsed += dt;
 
-  // Ensure enough meshes
   while (dotMeshes.length < state.dots.length) {
     const mesh = MeshBuilder.CreateSphere(
       `dot_${dotMeshes.length}`,
@@ -38,22 +36,17 @@ export function syncDotMeshes(state: GameState, scene: Scene, dt?: number): void
     dotMeshes.push(mesh);
   }
 
-  // Hide extras
   for (let i = state.dots.length; i < dotMeshes.length; i++) {
     dotMeshes[i].setEnabled(false);
   }
 
-  // Position dots
   for (let i = 0; i < state.dots.length; i++) {
     const dot = state.dots[i];
-    const normal = dot.position.normalize();
+    // Bob gently in place (use a consistent axis for bobbing)
     const bob = Math.sin(elapsed * DOT_BOB_SPEED + i * 1.5) * DOT_BOB_HEIGHT;
-    dotMeshes[i].position = dot.position.add(
-      normal.scale(DOT_HEIGHT_ABOVE_SURFACE + bob),
-    );
+    dotMeshes[i].position = dot.position.add(new Vector3(0, bob, 0));
     dotMeshes[i].setEnabled(true);
 
-    // Glow pulse
     const pulse = 0.8 + 0.2 * Math.sin(elapsed * 3 + i);
     dotMeshes[i].scaling = new Vector3(pulse, pulse, pulse);
   }

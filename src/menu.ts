@@ -44,7 +44,8 @@ export function createGUI(
   // Controls Menu
   controlsPanel = createPanel();
   addTitle(controlsPanel, "CONTROLS");
-  addLabel(controlsPanel, "A / D  or  Left Stick — Steer");
+  addLabel(controlsPanel, "W/A/S/D  or  Left Stick — Steer");
+  addLabel(controlsPanel, "D-pad — Steer");
   addLabel(controlsPanel, "Space  or  A Button — Confirm");
   addLabel(controlsPanel, "Escape  or  Start — Pause");
   addLabel(controlsPanel, "");
