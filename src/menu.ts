@@ -12,6 +12,7 @@ let startPanel: StackPanel;
 let controlsPanel: StackPanel;
 let pausePanel: StackPanel;
 let gameOverPanel: StackPanel;
+let scoreContainer: Rectangle;
 let scoreText: TextBlock;
 let gameOverScoreText: TextBlock;
 let menuSelection = 0;
@@ -23,16 +24,25 @@ export function createGUI(
   gui = guiTexture;
 
   // Score display (during gameplay)
+  scoreContainer = new Rectangle("scoreContainer");
+  scoreContainer.width = "200px";
+  scoreContainer.height = "45px";
+  scoreContainer.cornerRadius = 8;
+  scoreContainer.thickness = 2;
+  scoreContainer.color = "#44ff66";
+  scoreContainer.background = "rgba(0, 0, 0, 0.5)";
+  scoreContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+  scoreContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+  scoreContainer.top = "20px";
+  scoreContainer.left = "-20px";
+  scoreContainer.isVisible = false;
+
   scoreText = new TextBlock("score", "Score: 0");
   scoreText.color = "white";
-  scoreText.fontSize = 28;
+  scoreText.fontSize = 24;
   scoreText.fontFamily = "monospace";
-  scoreText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-  scoreText.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-  scoreText.paddingRight = "20px";
-  scoreText.paddingTop = "20px";
-  scoreText.isVisible = false;
-  gui.addControl(scoreText);
+  scoreContainer.addControl(scoreText);
+  gui.addControl(scoreContainer);
 
   // Start Menu
   startPanel = createPanel();
@@ -64,9 +74,10 @@ export function createGUI(
   addTitle(gameOverPanel, "GAME OVER");
   gameOverScoreText = new TextBlock("goScore", "Score: 0");
   gameOverScoreText.color = "#ff6666";
-  gameOverScoreText.fontSize = 36;
+  gameOverScoreText.fontSize = 28;
   gameOverScoreText.fontFamily = "monospace";
-  gameOverScoreText.height = "50px";
+  gameOverScoreText.height = "45px";
+  gameOverScoreText.textWrapping = true;
   gameOverPanel.addControl(gameOverScoreText);
   menuButtons[3].push(addButton(gameOverPanel, "Play Again"));
   menuButtons[3].push(addButton(gameOverPanel, "Main Menu"));
@@ -77,7 +88,7 @@ export function createGUI(
 
 function createPanel(): StackPanel {
   const panel = new StackPanel("panel");
-  panel.width = "400px";
+  panel.width = "500px";
   panel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
   panel.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
   return panel;
@@ -129,7 +140,7 @@ function hideAll(): void {
   controlsPanel.isVisible = false;
   pausePanel.isVisible = false;
   gameOverPanel.isVisible = false;
-  scoreText.isVisible = false;
+  scoreContainer.isVisible = false;
 }
 
 function highlightButton(panelIdx: number, idx: number): void {
@@ -202,7 +213,7 @@ export function updateMenu(
     }
     case "playing":
     case "zoom-in": {
-      scoreText.isVisible = true;
+      scoreContainer.isVisible = true;
       scoreText.text = `Score: ${state.score}`;
       break;
     }
