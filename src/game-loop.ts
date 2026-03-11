@@ -1,7 +1,7 @@
 import type { Scene, ArcRotateCamera } from "@babylonjs/core";
 import type { GameState, InputState } from "./types.ts";
 import { updateSnake, checkSelfCollision } from "./snake.ts";
-import { checkDotCollisions, spawnDots } from "./dots.ts";
+import { updateDots, spawnDots } from "./dots.ts";
 import { updateCamera, resetZoom } from "./camera.ts";
 import { syncSnakeMeshes, setSnakeVisible } from "./snake-meshes.ts";
 import { updateMenu } from "./menu.ts";
@@ -59,7 +59,7 @@ export function gameLoop(
     case "playing":
       state.elapsedTime += dt;
       updateSnake(state, input, dt);
-      checkDotCollisions(state);
+      updateDots(state, dt);
       if (checkSelfCollision(state)) {
         state.highScore = Math.max(state.highScore, state.score);
         state.phase = "game-over";
