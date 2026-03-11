@@ -13,6 +13,7 @@ export const DOT_EAT_DISTANCE = 0.5;
 export const DOT_BOB_SPEED = 2.0;
 export const DOT_BOB_HEIGHT = 0.08;
 export const DOT_HEIGHT_ABOVE_SURFACE = 0.15;
+export const DOT_SPAWN_MARGIN = 1.0;
 export const GROW_PER_EAT = 3;
 export const CAMERA_HEIGHT = 2.0;
 export const CAMERA_DISTANCE = 3.0;
