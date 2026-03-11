@@ -34,24 +34,31 @@ export function createScene(engine: Engine, _canvas: HTMLCanvasElement): Scene {
   hemiLight.diffuse = new Color3(0.8, 0.85, 1);
 
   const pointLight = new PointLight("point", new Vector3(0, 0, 0), scene);
-  pointLight.intensity = 1.0;
+  pointLight.intensity = 0.8;
   pointLight.diffuse = new Color3(0.9, 0.9, 1);
 
   return scene;
 }
 
 export function createWorldSphere(scene: Scene): Mesh {
+  // Exclude the world sphere from the point light to avoid glare
+  const pointLight = scene.getLightByName("point") as PointLight;
+
   const sphere = MeshBuilder.CreateSphere(
     "world",
     { diameter: SPHERE_RADIUS * 2, segments: 32, sideOrientation: 1 },
     scene,
   );
   const mat = new StandardMaterial("worldMat", scene);
-  mat.diffuseColor = new Color3(0.1, 0.15, 0.25);
-  mat.alpha = 0.4;
-  mat.specularColor = new Color3(0.2, 0.3, 0.5);
+  mat.diffuseColor = new Color3(0.08, 0.12, 0.2);
+  mat.alpha = 0.35;
+  mat.specularColor = Color3.Black();
+  mat.emissiveColor = new Color3(0.03, 0.05, 0.1);
   mat.backFaceCulling = true;
   sphere.material = mat;
+  if (pointLight) {
+    pointLight.excludedMeshes.push(sphere);
+  }
 
   // Wireframe overlay (also flipped for interior view)
   const wire = MeshBuilder.CreateSphere(
