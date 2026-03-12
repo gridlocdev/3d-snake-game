@@ -93,5 +93,7 @@ export function createStarfield(scene: Scene): void {
   ps.minEmitPower = 0;
   ps.maxEmitPower = 0;
   ps.updateSpeed = 0;
-  ps.start();
+  starTex.onLoadObservable.addOnce(() => {
+    ps.start();
+  });
 }
