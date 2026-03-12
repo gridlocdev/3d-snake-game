@@ -31,7 +31,7 @@ RUN mkdir -p /home/babylon/www && \
     chown -R babylon:babylon /home/babylon
 
 # Copy built files from builder stage
-COPY --from=builder --chown=babylon:babylon /app/build /home/babylon/www
+COPY --from=builder --chown=babylon:babylon /app/dist /home/babylon/www
 
 # Switch to non-root user
 USER babylon
