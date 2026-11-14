@@ -1,57 +1,24 @@
 # 3D Snake
 
-The classic game of Snake reimagined in 3D. 
+The classic game of Snake, moved inside a sphere: you steer in three dimensions, eat glowing dots and grow longer, and the longer you get, the harder it is not to crash into yourself.
 
-Float inside of a sphere and collect glowing dots as you get longer. The longer you get, the harder it becomes to avoid crashing into yourself!
+<p align="center"><img src="docs/images/gameplay.webp" alt="3D Snake mid-game, seen from inside the sphere: the green snake's large head and first few segments rise from the bottom right, its long body of green balls loops round the left side of the view, two glowing yellow dots float beside it, and the faint wireframe grid of the sphere's wall lines the dark blue background" width="420"></p>
 
-Try not to get motion sick, and good luck!
+- **Steer in every direction.** You always move forward, and you steer up, down, left and right with the keyboard or a gamepad.
+- **Eat dots to grow.** Each dot scores a point and adds three segments, and a dot you pass close to slides toward your head.
+- **Don't touch anything.** Running into your own body or the sphere's wall ends the run.
 
-![Gameplay Screenshot](gameplay.png)
+## Getting started
 
----
-
-## How to Play
-
-### Goal
-
-Eat as many glowing dots as you can. Your snake grows longer with each one, so things get tricky fast! The game ends if you run into your own body or touch the wall of the sphere.
-
-### Controls
-
-|                  | Keyboard                       | Gamepad            |
-|------------------|--------------------------------|--------------------|
-| Steer up/down    | `W` / `S` or `↑` / `↓`        | Left stick / D-pad |
-| Steer left/right | `A` / `D` or `←` / `→`        | Left stick / D-pad |
-| Confirm / Select | `Space` or `Enter`             | A button           |
-| Pause            | `Escape`                       | Start              |
-
-### Tips
-
-- **Dots come to you** — Get close to a dot and it'll slide toward your head like a magnet.
-- **Give yourself room** — Your snake grows 3 segments every time you eat, so plan your turns ahead.
-- **Watch the walls** — The sphere boundary is a instant game over, just like running into yourself.
-- **Beat your best** — Your high score is saved, so try to top it next run!
-
----
-
-## Running Locally
-
-You'll need [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io) installed.
+Play it in your browser at [gridloc.dev/games/3d-snake](https://gridloc.dev/games/3d-snake), or run it from source:
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Start the development server (with hot reload)
-pnpm dev
-
-### Or, if you want to run the optimized build:
-
-# Build for production
-pnpm build
-
-# Preview the production build
-pnpm preview
+pnpm install && pnpm dev   # serve on http://localhost:5173
 ```
 
-Once the server starts, open your browser to the URL it prints (usually `http://localhost:5173`).
+See [Getting started](docs/getting-started.md) for requirements and other ways to run it.
+
+## Learn more
+
+- [How to play](docs/features.md) · [Controls](docs/controls.md) · [Credits](docs/credits.md)
+- [All documentation](docs/README.md) · [Working on the code](docs/development.md)
